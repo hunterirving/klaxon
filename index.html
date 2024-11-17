@@ -92,8 +92,8 @@
 			player2: document.getElementById('player2-indicator')
 		};
 		
-		let timePlayer1 = 6; // 10 minutes in seconds
-		let timePlayer2 = 6;
+		let timePlayer1 = 600; // 10 minutes in seconds
+		let timePlayer2 = 600;
 		let activePlayer = 1;
 		let interval;
 		let gameStarted = false;
@@ -130,11 +130,30 @@
 				oscillator.stop();
 			}, 1000);
 		}
+
+		function playBlipTone() {
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			const oscillator = audioContext.createOscillator();
+			const gainNode = audioContext.createGain();
+
+			oscillator.connect(gainNode);
+			gainNode.connect(audioContext.destination);
+
+			oscillator.type = 'sine';
+			oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+			gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+			gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+
+			oscillator.start(audioContext.currentTime);
+			oscillator.stop(audioContext.currentTime + 0.1);
+		}
 		
 		function switchPlayer() {
 			activePlayer = activePlayer === 1 ? 2 : 1;
 			player1.classList.toggle('inactive');
 			player2.classList.toggle('inactive');
+			playBlipTone();
 		}
 		
 		function tick() {
@@ -159,6 +178,7 @@
 				gameStarted = true;
 				interval = setInterval(tick, 1000);
 				player2.classList.add('inactive');
+				playBlipTone();
 			} else {
 				switchPlayer();
 			}
