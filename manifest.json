@@ -11,5 +11,5 @@
 	"start_url": "/klaxon/",
 	"display": "standalone",
 	"background_color": "#000000",
-	"theme_color": "#ff0000"
+	"theme_color": "#000000"
 }
