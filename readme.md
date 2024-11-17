@@ -20,5 +20,5 @@ make your move, then punch the clock.
 <i>now with <a href="https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Installing">Progressive Web App</a> support !</i>
 
 ## licenses
-- code: [GPLv3](LICENSE)
+- code: [GPLv3](licenses/LICENSE)
 - [7segment.ttf](https://torinak.com/font/7-segment) font by Jan Bobrowski: [SIL Open Font License](licenses/OFL.txt)
