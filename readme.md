@@ -17,7 +17,7 @@ make your move, then punch the clock.
 [try it now in your browser →](https://hunterirving.github.io/klaxon/)<br>
 (touchscreen device recommended)
 
-<i>now with <a href="https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Installing">Progressive Web App</a> support!</i>
+<i>now with <a href="https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Installing">Progressive Web App</a> support !</i>
 
 ## licenses
 - code: [GPLv3](LICENSE)
