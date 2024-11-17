@@ -7,7 +7,7 @@ a chess clock in your pocket, optimized for touchscreen devices and competitive 
 - runs in your browser — no setup or installation required
 - looks positively sick
 
-<img src="readme_images/klaxon.gif" width="400px">
+<a href="https://hunterirving.github.io/klaxon/"><img src="readme_images/klaxon.gif" width="400px"></a>
 
 ## usage
 open `index.html` in a web browser and tap anywhere to begin.<br>
