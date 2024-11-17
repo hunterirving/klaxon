@@ -7,12 +7,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<style>
 		* {
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-		user-select: none;
-		-webkit-user-select: none;
-		-webkit-tap-highlight-color: transparent;
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			user-select: none;
+			-webkit-user-select: none;
+			-webkit-tap-highlight-color: transparent;
 		}
 		
 		.player-section {
@@ -21,16 +21,23 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			position: relative;
 			transition: all 0.3s ease;
-			/* Add padding to ensure some spacing from edges */
 			padding: 20px;
 		}
 
 		.timer {
-			/* Remove the font-size from body and place it here */
-			font-size: min(25vw, 40vh);  /* This will take the smaller of either 25% viewport width or 40% viewport height */
-			width: 80%;  /* Take up 80% of the container width */
+			font-size: min(25vw, 40vh); /* Responsive font size */
+			width: 80%; /* Take up 80% of the container width */
 			text-align: center;
+		}
+		.player-indicator {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			font-size: min(8vw, 6vh);
+			transform: rotate(180deg); /* Upside-down for the opponent */
+			color: inherit;
 		}
 
 		body {
@@ -40,23 +47,22 @@
 			font-family: 'Segment7';
 			font-weight: normal;
 			font-style: normal;
-			/* Remove font-size from here */
 		}
 		
 		#player1 {
-		background: #ff0000;
-		color: black;
-		transform: rotate(180deg);
+			background: #ff0000;
+			color: black;
+			transform: rotate(180deg);
 		}
 		
 		#player2 {
-		background: #ff0000;
-		color: black;
+			background: #ff0000;
+			color: black;
 		}
 		
 		.inactive {
-		background: black !important;
-		color: #ff0000 !important;
+			background: black !important;
+			color: #ff0000 !important;
 		}
 
 		@font-face {
@@ -65,98 +71,97 @@
 			font-weight: normal;
 			font-style: normal;
 		}
-
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-			user-select: none;
-			-webkit-user-select: none;
-			-webkit-tap-highlight-color: transparent;
-		}
 	</style>
 </head>
 <body>
 	<div id="player1" class="player-section">
 		<div class="timer">10:00</div>
+		<div class="player-indicator" id="player1-indicator">10:00</div>
 	</div>
 	<div id="player2" class="player-section inactive">
 		<div class="timer">10:00</div>
+		<div class="player-indicator" id="player2-indicator">10:00</div>
 	</div>
 
 	<script>
 		const player1 = document.getElementById('player1');
 		const player2 = document.getElementById('player2');
 		const timers = document.querySelectorAll('.timer');
+		const indicators = {
+			player1: document.getElementById('player1-indicator'),
+			player2: document.getElementById('player2-indicator')
+		};
 		
-		let timePlayer1 = 600; // 10 minutes in seconds
-		let timePlayer2 = 600;
+		let timePlayer1 = 6; // 10 minutes in seconds
+		let timePlayer2 = 6;
 		let activePlayer = 1;
 		let interval;
 		let gameStarted = false;
 		
 		function formatTime(seconds) {
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
-		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+			const mins = Math.floor(seconds / 60);
+			const secs = seconds % 60;
+			return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 		}
 		
 		function updateDisplay() {
-		timers[0].textContent = formatTime(timePlayer1);
-		timers[1].textContent = formatTime(timePlayer2);
+			timers[0].textContent = formatTime(timePlayer1);
+			timers[1].textContent = formatTime(timePlayer2);
+			indicators.player1.textContent = formatTime(timePlayer1);
+			indicators.player2.textContent = formatTime(timePlayer2);
 		}
 		
 		function playTimeoutSound() {
-		const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-		const oscillator = audioContext.createOscillator();
-		const gainNode = audioContext.createGain();
-		
-		oscillator.connect(gainNode);
-		gainNode.connect(audioContext.destination);
-		
-		oscillator.type = 'square';
-		oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-		gainNode.gain.setValueAtTime(1, audioContext.currentTime);
-		
-		oscillator.start();
-		gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
-		
-		setTimeout(() => {
-			oscillator.stop();
-		}, 1000);
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			const oscillator = audioContext.createOscillator();
+			const gainNode = audioContext.createGain();
+			
+			oscillator.connect(gainNode);
+			gainNode.connect(audioContext.destination);
+			
+			oscillator.type = 'square';
+			oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+			gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+			
+			oscillator.start();
+			gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+			
+			setTimeout(() => {
+				oscillator.stop();
+			}, 1000);
 		}
 		
 		function switchPlayer() {
-		activePlayer = activePlayer === 1 ? 2 : 1;
-		player1.classList.toggle('inactive');
-		player2.classList.toggle('inactive');
+			activePlayer = activePlayer === 1 ? 2 : 1;
+			player1.classList.toggle('inactive');
+			player2.classList.toggle('inactive');
 		}
 		
 		function tick() {
-		if (activePlayer === 1) {
-			timePlayer1--;
-			if (timePlayer1 === 0) {
-			clearInterval(interval);
-			playTimeoutSound();
+			if (activePlayer === 1) {
+				timePlayer1--;
+				if (timePlayer1 === 0) {
+					clearInterval(interval);
+					playTimeoutSound();
+				}
+			} else {
+				timePlayer2--;
+				if (timePlayer2 === 0) {
+					clearInterval(interval);
+					playTimeoutSound();
+				}
 			}
-		} else {
-			timePlayer2--;
-			if (timePlayer2 === 0) {
-			clearInterval(interval);
-			playTimeoutSound();
-			}
-		}
-		updateDisplay();
+			updateDisplay();
 		}
 		
 		function startGame() {
-		if (!gameStarted) {
-			gameStarted = true;
-			interval = setInterval(tick, 1000);
-			player2.classList.add('inactive');
-		} else {
-			switchPlayer();
-		}
+			if (!gameStarted) {
+				gameStarted = true;
+				interval = setInterval(tick, 1000);
+				player2.classList.add('inactive');
+			} else {
+				switchPlayer();
+			}
 		}
 		
 		player1.addEventListener('click', startGame);
@@ -164,6 +169,9 @@
 		
 		// Prevent scrolling/bouncing on iOS
 		document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+		
+		// Initialize display
+		updateDisplay();
 	</script>
 </body>
 </html>
