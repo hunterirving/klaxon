@@ -121,13 +121,7 @@
 
 			const blob = new Blob([swContent], {type: 'text/javascript'});
 			const swUrl = URL.createObjectURL(blob);
-			navigator.serviceWorker.register(swUrl, { scope: '/klaxon/' })
-				.then(function(registration) {
-					console.log('Service Worker registered with scope:', registration.scope);
-				})
-				.catch(function(error) {
-					console.log('Service Worker registration failed:', error);
-				});
+			navigator.serviceWorker.register(swUrl, { scope: '/klaxon/' });
 		}
 
 		// Disable device sleep while countdown is in progress
