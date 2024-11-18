@@ -87,6 +87,33 @@
 	</div>
 
 	<script>
+		let wakeLock = null;
+
+		async function requestWakeLock() {
+			if ('wakeLock' in navigator) {
+				try {
+					wakeLock = await navigator.wakeLock.request('screen');
+				} catch (err) {
+					console.error(`${err.name}, ${err.message}`);
+				}
+			}
+		}
+
+		function releaseWakeLock() {
+			if (wakeLock !== null) {
+				wakeLock.release();
+				wakeLock = null;
+			}
+		}
+
+		window.addEventListener('load', requestWakeLock);
+
+		document.addEventListener('visibilitychange', () => {
+			if (wakeLock !== null && document.visibilityState === 'visible') {
+				requestWakeLock();
+			}
+		});
+
 		const player1 = document.getElementById('player1');
 		const player2 = document.getElementById('player2');
 		const timers = document.querySelectorAll('.timer');
@@ -138,16 +165,12 @@
 			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 			const oscillator = audioContext.createOscillator();
 			const gainNode = audioContext.createGain();
-
 			oscillator.connect(gainNode);
 			gainNode.connect(audioContext.destination);
-
 			oscillator.type = 'sine';
 			oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
 			gainNode.gain.setValueAtTime(1, audioContext.currentTime);
-
 			gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-
 			oscillator.start(audioContext.currentTime);
 			oscillator.stop(audioContext.currentTime + 0.1);
 		}
@@ -165,12 +188,14 @@
 				if (timePlayer1 === 0) {
 					clearInterval(interval);
 					playTimeoutSound();
+					releaseWakeLock(); // Release wake lock when timer concludes
 				}
 			} else {
 				timePlayer2--;
 				if (timePlayer2 === 0) {
 					clearInterval(interval);
 					playTimeoutSound();
+					releaseWakeLock(); // Release wake lock when timer concludes
 				}
 			}
 			updateDisplay();
