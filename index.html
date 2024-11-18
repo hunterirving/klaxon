@@ -87,6 +87,50 @@
 	</div>
 
 	<script>
+		// Cache files for offline PWA
+		if ('serviceWorker' in navigator) {
+			const swContent = `
+				const CACHE_NAME = 'klaxon-cache-v1';
+				const urlsToCache = [
+					'/klaxon/',
+					'/klaxon/index.html',
+					'/klaxon/manifest.json',
+					'/klaxon/resources/7segment.ttf',
+					'/klaxon/resources/icon.svg'
+				];
+
+				self.addEventListener('install', (event) => {
+					event.waitUntil(
+						caches.open(CACHE_NAME)
+							.then((cache) => cache.addAll(urlsToCache))
+					);
+				});
+
+				self.addEventListener('fetch', (event) => {
+					event.respondWith(
+						caches.match(event.request)
+							.then((response) => {
+								if (response) {
+									return response;
+								}
+								return fetch(event.request);
+							})
+					);
+				});
+			`;
+
+			const blob = new Blob([swContent], {type: 'text/javascript'});
+			const swUrl = URL.createObjectURL(blob);
+			navigator.serviceWorker.register(swUrl, { scope: '/klaxon/' })
+				.then(function(registration) {
+					console.log('Service Worker registered with scope:', registration.scope);
+				})
+				.catch(function(error) {
+					console.log('Service Worker registration failed:', error);
+				});
+		}
+
+		// Disable device sleep while countdown is in progress
 		let wakeLock = null;
 
 		async function requestWakeLock() {
@@ -121,7 +165,7 @@
 			player1: document.getElementById('player1-indicator'),
 			player2: document.getElementById('player2-indicator')
 		};
-		
+
 		let timePlayer1 = 600; // 10 minutes in seconds
 		let timePlayer2 = 600;
 		let activePlayer = 1;
@@ -145,17 +189,13 @@
 			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 			const oscillator = audioContext.createOscillator();
 			const gainNode = audioContext.createGain();
-			
 			oscillator.connect(gainNode);
 			gainNode.connect(audioContext.destination);
-			
 			oscillator.type = 'square';
 			oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
 			gainNode.gain.setValueAtTime(1, audioContext.currentTime);
-			
 			oscillator.start();
 			gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
-			
 			setTimeout(() => {
 				oscillator.stop();
 			}, 1000);
@@ -188,14 +228,14 @@
 				if (timePlayer1 === 0) {
 					clearInterval(interval);
 					playTimeoutSound();
-					releaseWakeLock(); // Release wake lock when timer concludes
+					releaseWakeLock();
 				}
 			} else {
 				timePlayer2--;
 				if (timePlayer2 === 0) {
 					clearInterval(interval);
 					playTimeoutSound();
-					releaseWakeLock(); // Release wake lock when timer concludes
+					releaseWakeLock();
 				}
 			}
 			updateDisplay();
