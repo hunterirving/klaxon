@@ -9,7 +9,7 @@
 		}
 	],
 	"start_url": "/klaxon/",
-	"display": "standalone",
+	"display": "fullscreen",
 	"background_color": "#000000",
 	"theme_color": "#000000"
 }
